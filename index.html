@@ -27,6 +27,11 @@
   <!-- Control UI -->
   <div id="controlBox" style="display:none;">
 
+    <!-- Temperature Display -->
+    <div class="temperature-display">
+      <h2>Temperature: <span id="temp">--</span> °C</h2>
+    </div>
+
     <button id="gpio1Btn" class="gpio-button" data-gpio="gpio1">BMS-Lite GPIO 1</button>
     <div id="gpio1Status" class="gpio-status">Status: OFF</div>
 
@@ -40,6 +45,40 @@
   </div>
 
 </div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+  import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+
+  // Firebase config
+  const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_PROJECT.firebaseapp.com",
+    databaseURL: "YOUR_DATABASE_URL",
+    projectId: "YOUR_PROJECT_ID",
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+
+  // Temperature real-time listener
+  const tempRef = ref(db, 'temperature');
+  onValue(tempRef, (snapshot) => {
+    const temp = snapshot.val();
+    document.getElementById('temp').innerText = temp;
+  });
+
+  // GPIO real-time listeners
+  ['gpio1','gpio2','gpio3'].forEach(gpio => {
+    const gpioRef = ref(db, gpio);
+    onValue(gpioRef, (snapshot) => {
+      const val = snapshot.val();
+      document.getElementById(gpio + 'Status').innerText = "Status: " + (val ? "ON" : "OFF");
+    });
+  });
+
+</script>
 
 </body>
 </html>
