@@ -1,19 +1,18 @@
-// ================= FIREBASE IMPORTS =================
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
 import {
   getAuth,
   signInWithEmailAndPassword,
-  signOut,
-  onAuthStateChanged
+  onAuthStateChanged,
+  signOut
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
 import {
   getDatabase,
   ref,
-  onValue,
-  set
+  set,
+  onValue
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 
-// ================= YOUR FIREBASE CONFIG =================
+// Firebase config
 const firebaseConfig = {
   apiKey: "AIzaSyCmRQY6Qkursb7kt4p_pizV747JO7EntDM",
   authDomain: "bms-lite-c1453.firebaseapp.com",
@@ -24,75 +23,101 @@ const firebaseConfig = {
   appId: "1:992533228260:web:89739abdfc5cef63ff9af1"
 };
 
-// ================= INIT =================
+// Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
+const auth = getAuth();
 const db = getDatabase(app);
 
-// ================= HTML ELEMENTS =================
-const emailInput = document.getElementById("email");
-const passwordInput = document.getElementById("password");
+// UI elements
+const authBox = document.getElementById("authBox");
+const controlBox = document.getElementById("controlBox");
 const loginBtn = document.getElementById("loginBtn");
 const logoutBtn = document.getElementById("logoutBtn");
+const authMsg = document.getElementById("authMsg");
+const badge = document.getElementById("statusBadge");
+const tempDisplay = document.getElementById("temp");
 
-const authBox = document.getElementById("authBox");
-const dashboard = document.getElementById("dashboard");
-const msg = document.getElementById("msg");
+const gpioButtons = {
+  gpio1: document.getElementById("gpio1Btn"),
+  gpio2: document.getElementById("gpio2Btn"),
+  gpio3: document.getElementById("gpio3Btn")
+};
 
-const chillerStatusEl = document.getElementById("chillerStatus");
-const toggleChillerBtn = document.getElementById("toggleChiller");
+const gpioLabels = {
+  gpio1: document.getElementById("gpio1Status"),
+  gpio2: document.getElementById("gpio2Status"),
+  gpio3: document.getElementById("gpio3Status")
+};
 
-// ================= LOGIN =================
-loginBtn.onclick = () => {
-  const email = emailInput.value.trim();
-  const password = passwordInput.value.trim();
-
-  if (!email || !password) {
-    msg.innerText = "Email and password required";
-    return;
+// Login
+loginBtn.onclick = async () => {
+  authMsg.textContent = "";
+  try {
+    await signInWithEmailAndPassword(
+      auth,
+      document.getElementById("emailField").value,
+      document.getElementById("passwordField").value
+    );
+  } catch (e) {
+    authMsg.textContent = e.message;
   }
-
-  signInWithEmailAndPassword(auth, email, password)
-    .then(() => {
-      msg.innerText = "";
-    })
-    .catch(err => {
-      msg.innerText = err.code + " : " + err.message;
-    });
 };
 
-// ================= LOGOUT =================
-logoutBtn.onclick = () => {
-  signOut(auth);
-};
+logoutBtn.onclick = () => signOut(auth);
 
-// ================= AUTH STATE =================
-onAuthStateChanged(auth, user => {
+// Auth state monitor
+onAuthStateChanged(auth, (user) => {
   if (user) {
     authBox.style.display = "none";
-    dashboard.style.display = "block";
+    controlBox.style.display = "block";
+    badge.className = "status-badge online";
+    badge.textContent = "Online";
+    startListeners();
   } else {
     authBox.style.display = "block";
-    dashboard.style.display = "none";
+    controlBox.style.display = "none";
+    badge.className = "status-badge offline";
+    badge.textContent = "Offline";
   }
 });
 
-// ================= CHILLER STATUS =================
-const chillerRef = ref(db, "chiller/status");
+// Listen to DB
+function startListeners() {
+  ["gpio1", "gpio2", "gpio3"].forEach((key) => {
+    onValue(ref(db, "/" + key), (snapshot) => {
+      let value = snapshot.val() ? 1 : 0;
+      updateUI(key, value);
+    });
+  });
 
-onValue(chillerRef, snapshot => {
-  const status = snapshot.val();
-  chillerStatusEl.innerText = status ? "ON" : "OFF";
-});
+  // Temperature listener
+  onValue(ref(db, "/temperature"), (snapshot) => {
+    const temp = snapshot.val();
+    tempDisplay.textContent = temp !== null ? temp : "--";
+  });
 
-// Toggle chiller ON/OFF (admin)
-toggleChillerBtn.onclick = () => {
-  onValue(chillerRef, snap => {
-    set(chillerRef, !snap.val());
-  }, { onlyOnce: true });
-};
+  // Button click
+  Object.values(gpioButtons).forEach((btn) => {
+    btn.onclick = () => {
+      let gpio = btn.dataset.gpio;
+      let newState = btn.classList.contains("on") ? 0 : 1;
+      set(ref(db, "/" + gpio), newState);
+    };
+  });
+}
 
-// ================= FLOOR NAVIGATION =================
-window.goFloor = (floor) => {
-  window.location.href = `floor.html?floor=${floor}`;
-};
+// Update UI
+function updateUI(key, val) {
+  let btn = gpioButtons[key];
+  let lab = gpioLabels[key];
+
+  if (val === 1) {
+    btn.classList.add("on");
+    lab.textContent = "Status: ON";
+    lab.style.color = "#9effae";
+  } else {
+    btn.classList.remove("on");
+    lab.textContent = "Status: OFF";
+    lab.style.color = "#d1d1d1";
+  }
+}
