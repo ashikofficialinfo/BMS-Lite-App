@@ -1,83 +1,183 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>BMS-Lite Control</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BMS – Main Dashboard</title>
 
-<link rel="stylesheet" href="styles.css">
-<script type="module" src="app.js"></script>
+<style>
+  body {
+    margin: 0;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #0f172a;
+    font-family: Arial, sans-serif;
+    color: white;
+  }
+
+  .card {
+    width: 360px;
+    background: #111827;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.6);
+    text-align: center;
+  }
+
+  input, button {
+    width: 100%;
+    padding: 10px;
+    margin: 8px 0;
+    border-radius: 6px;
+    border: none;
+    font-size: 16px;
+  }
+
+  input {
+    background: #1f2933;
+    color: white;
+  }
+
+  button {
+    background: #2563eb;
+    color: white;
+    cursor: pointer;
+  }
+
+  button:hover {
+    background: #1d4ed8;
+  }
+
+  .floor-buttons button {
+    background: #374151;
+    margin: 6px 0;
+  }
+
+  .floor-buttons button:hover {
+    background: #4b5563;
+  }
+
+  .status {
+    font-size: 20px;
+    margin: 10px 0;
+  }
+
+  .logout {
+    background: #dc2626;
+  }
+</style>
 </head>
 
 <body>
 
 <div class="card">
 
-  <h1>BMS-Lite Control</h1>
-  <div id="statusBadge" class="status-badge offline">Offline</div>
+  <h2>BMS – Login</h2>
 
-  <!-- Login UI -->
+  <!-- LOGIN BOX -->
   <div id="authBox">
-    <input id="emailField" type="email" placeholder="Email" />
-    <input id="passwordField" type="password" placeholder="Password" />
-    <button id="loginBtn" class="btn login-btn">Login</button>
-    <p id="authMsg"></p>
+    <input id="email" type="email" placeholder="Email">
+    <input id="password" type="password" placeholder="Password">
+    <button id="loginBtn">Login</button>
+    <p id="msg"></p>
   </div>
 
-  <!-- Control UI -->
-  <div id="controlBox" style="display:none;">
+  <!-- DASHBOARD -->
+  <div id="dashboard" style="display:none;">
 
-    <!-- Temperature Display -->
-    <div class="temperature-display">
-      <h2>Temperature: <span id="temp">--</span> °C</h2>
+    <h2>Main Dashboard</h2>
+
+    <div class="status">
+      Chiller Status: <span id="chillerStatus">--</span>
     </div>
 
-    <button id="gpio1Btn" class="gpio-button" data-gpio="gpio1">BMS-Lite GPIO 1</button>
-    <div id="gpio1Status" class="gpio-status">Status: OFF</div>
+    <button id="toggleChiller">ON / OFF</button>
 
-    <button id="gpio2Btn" class="gpio-button" data-gpio="gpio2">BMS-Lite GPIO 2</button>
-    <div id="gpio2Status" class="gpio-status">Status: OFF</div>
+    <h3>Select Floor</h3>
 
-    <button id="gpio3Btn" class="gpio-button" data-gpio="gpio3">BMS-Lite GPIO 3</button>
-    <div id="gpio3Status" class="gpio-status">Status: OFF</div>
+    <div class="floor-buttons">
+      <button onclick="goFloor(4)">4th Floor</button>
+      <button onclick="goFloor(3)">3rd Floor</button>
+      <button onclick="goFloor(2)">2nd Floor</button>
+      <button onclick="goFloor(1)">1st Floor</button>
+      <button onclick="goFloor(0)">Ground Floor</button>
+    </div>
 
-    <button id="logoutBtn" class="btn logout-btn">Logout</button>
+    <button class="logout" id="logoutBtn">Logout</button>
+
   </div>
 
 </div>
 
+<!-- FIREBASE -->
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-  import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged }
+from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
 
-  // Firebase config
-  const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_PROJECT.firebaseapp.com",
-    databaseURL: "YOUR_DATABASE_URL",
-    projectId: "YOUR_PROJECT_ID",
-  };
+/* 🔥 CHANGE THESE VALUES */
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  databaseURL: "YOUR_DATABASE_URL",
+  projectId: "YOUR_PROJECT_ID"
+};
 
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-  const db = getDatabase(app);
+/* INIT */
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+const auth = getAuth(app);
 
-  // Temperature real-time listener
-  const tempRef = ref(db, 'temperature');
-  onValue(tempRef, (snapshot) => {
-    const temp = snapshot.val();
-    document.getElementById('temp').innerText = temp;
+/* ELEMENTS */
+const authBox = document.getElementById("authBox");
+const dashboard = document.getElementById("dashboard");
+const chillerStatus = document.getElementById("chillerStatus");
+
+/* AUTH */
+document.getElementById("loginBtn").onclick = () => {
+  signInWithEmailAndPassword(
+    auth,
+    email.value,
+    password.value
+  ).catch(err => {
+    msg.innerText = err.message;
   });
+};
 
-  // GPIO real-time listeners
-  ['gpio1','gpio2','gpio3'].forEach(gpio => {
-    const gpioRef = ref(db, gpio);
-    onValue(gpioRef, (snapshot) => {
-      const val = snapshot.val();
-      document.getElementById(gpio + 'Status').innerText = "Status: " + (val ? "ON" : "OFF");
-    });
-  });
+document.getElementById("logoutBtn").onclick = () => {
+  signOut(auth);
+};
 
+onAuthStateChanged(auth, user => {
+  if (user) {
+    authBox.style.display = "none";
+    dashboard.style.display = "block";
+  } else {
+    authBox.style.display = "block";
+    dashboard.style.display = "none";
+  }
+});
+
+/* CHILLER STATUS */
+const chillerRef = ref(db, "chiller/status");
+
+onValue(chillerRef, snap => {
+  chillerStatus.innerText = snap.val() ? "ON" : "OFF";
+});
+
+document.getElementById("toggleChiller").onclick = () => {
+  onValue(chillerRef, snap => {
+    set(chillerRef, !snap.val());
+  }, { onlyOnce: true });
+};
+
+/* FLOOR NAVIGATION */
+window.goFloor = floor => {
+  window.location.href = `floor.html?floor=${floor}`;
+};
 </script>
 
 </body>
