@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>BMS-Lite | Level-1 View</title>
+
+<style>
+  body {
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f0f4f8;
+  }
+
+  header {
+    background: #2563eb;
+    color: white;
+    padding: 15px 20px;
+    text-align: center;
+    font-size: 22px;
+    font-weight: bold;
+  }
+
+  .container {
+    padding: 20px;
+  }
+
+  .back-btn {
+    display: inline-block;
+    margin-bottom: 20px;
+    text-decoration: none;
+    background: #2563eb;
+    color: white;
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: 14px;
+  }
+
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+  }
+
+  .card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+  }
+
+  .status {
+    margin-top: 10px;
+    padding: 6px 12px;
+    display: inline-block;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    text-align: center;
+    min-width: 80px;
+  }
+
+  .off { background: #fee2e2; color: #991b1b; }
+  .on { background: #dcfce7; color: #166534; }
+  .fire-alert { background: #fee2e2; color: #b91c1c; }
+
+  .toggle-on, .toggle-off {
+    margin-top: 6px;
+    padding: 6px 12px;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .toggle-on { background: #16a34a; color: white; margin-right:5px; }
+  .toggle-off { background: #dc2626; color: white; }
+
+  .toggle-on:disabled, .toggle-off:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+</style>
+</head>
+<body>
+
+<header>BMS-Lite – Level-1 Monitoring</header>
+
+<div class="container">
+  <a class="back-btn" href="dashboard.html">← Back to Dashboard</a>
+  <div class="card-grid" id="roomGrid"></div>
+</div>
+
+<script>
+  // Sample Room List for Level-1
+  const rooms = [
+    {id:108, name:"Testing Lab"},
+    {id:109, name:"Electrical Circuit Lab"},
+    {id:110, name:"Class"},
+    {id:112, name:"Construction Lab"},
+    {id:113, name:"Geotechnical Lab"},
+    {id:114, name:"Electronic Lab"},
+    {id:115, name:"Class"},
+    {id:116, name:"Class"},
+    {id:117, name:"Machine Shop Lab"},
+    {id:118, name:"Store"}
+  ];
+
+  const role = sessionStorage.getItem("role") || "guest"; // default guest
+
+  const roomGrid = document.getElementById("roomGrid");
+
+  rooms.forEach((room, index) => {
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML = `
+      <h3>Room ${room.id} - ${room.name}</h3>
+      <div>Temperature: <span id="temp${index}">--</span> °C</div>
+      <div>Humidity: <span id="humidity${index}">--</span> %</div>
+      <div>Fire Alert: <span id="fire${index}" class="status fire-alert">Safe</span></div>
+      <div>FCU Status: <span id="fcu${index}" class="status off">OFF</span></div>
+      <div style="margin-top:8px;">
+        <button class="toggle-on">FCU ON</button>
+        <button class="toggle-off">FCU OFF</button>
+      </div>
+    `;
+    roomGrid.appendChild(card);
+  });
+
+  // Disable buttons for guest
+  if(role === "guest") {
+    document.querySelectorAll('.toggle-on, .toggle-off').forEach(btn => {
+      btn.disabled = true;
+    });
+  }
+
+  // Optional: Add JS to fetch data from Firebase and update status
+</script>
+
+</body>
+</html>

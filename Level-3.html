@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BMS‑Lite | Level-3 View</title>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f0f4f8;
+    }
+
+    header {
+      background: linear-gradient(90deg, #2563eb, #38bdf8);
+      color: white;
+      padding: 15px 20px;
+      text-align: center;
+      font-size: 22px;
+      font-weight: bold;
+      letter-spacing: 0.5px;
+    }
+
+    .container {
+      padding: 20px;
+    }
+
+    .back-btn {
+      display: inline-block;
+      margin-bottom: 20px;
+      text-decoration: none;
+      background: #2563eb;
+      color: white;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 14px;
+      transition: 0.3s;
+    }
+
+    .back-btn:hover { background: #1e40af; }
+
+    .floor-title {
+      font-size: 24px;
+      margin-bottom: 20px;
+      color: #0f172a;
+    }
+
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+      transition: transform 0.2s;
+    }
+
+    .card:hover { transform: translateY(-5px); }
+
+    .card h3 {
+      margin: 0 0 12px;
+      font-size: 18px;
+      color: #334155;
+    }
+
+    .status {
+      margin-top: 10px;
+      padding: 6px 12px;
+      display: inline-block;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      text-align: center;
+      min-width: 80px;
+    }
+
+    .on { background: #dcfce7; color: #166534; }
+    .off { background: #fee2e2; color: #991b1b; }
+    .safe { background: #d1fae5; color: #065f46; }
+    .risk { background: #fef3c7; color: #78350f; }
+    .fire-alert { background: #fee2e2; color: #b91c1c; }
+
+    .toggle-on, .toggle-off {
+      margin-top: 6px;
+      padding: 6px 12px;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .toggle-on { background: #16a34a; color: white; margin-right:5px; }
+    .toggle-off { background: #dc2626; color: white; }
+
+    .toggle-on:hover, .toggle-off:hover { opacity: 0.85; }
+
+    footer {
+      text-align: center;
+      padding: 15px;
+      font-size: 13px;
+      color: #64748b;
+      margin-top: 30px;
+    }
+  </style>
+</head>
+<body>
+
+<header>BMS‑Lite – Level-3 Monitoring</header>
+
+<div class="container">
+  <a class="back-btn" href="index.html">← Back to Dashboard</a>
+  <div class="floor-title">Level-3 Room Status</div>
+
+  <div class="card-grid">
+    <script>
+      const rooms = [
+        {id:310, name:"Networking Lab"},
+        {id:311, name:"Class"},
+        {id:312, name:"Class"},
+        {id:313, name:"Class"},
+        {id:314, name:"Computer Lab"},
+        {id:315, name:"Software Lab"}
+      ];
+
+      rooms.forEach((room, index) => {
+        document.write(`
+          <div class="card" id="room${index+1}">
+            <h3>Room ${room.id} - ${room.name}</h3>
+            <div>Temperature: <span id="temp${index+1}">--</span> °C</div>
+            <div>Humidity: <span id="humidity${index+1}">--</span> %</div>
+            <div>Air Quality: <span id="air${index+1}" class="status safe">Good</span></div>
+            <div>Fire Alert: <span id="fire${index+1}" class="status fire-alert">Safe</span></div>
+            <div>FCU Status: <span id="fcu${index+1}" class="status off">OFF</span></div>
+            <div style="margin-top:8px;">
+              <button class="toggle-on" onclick="toggleFCU(${index+1}, true)">FCU ON</button>
+              <button class="toggle-off" onclick="toggleFCU(${index+1}, false)">FCU OFF</button>
+            </div>
+          </div>
+        `);
+      });
+    </script>
+  </div>
+</div>
+
+<footer>© 2025 BMS‑Lite | Level-3 View</footer>
+
+<script src="floor.js"></script>
+</body>
+</html>

@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>BMS-Lite Dashboard</title>
+
+<style>
+  body {
+    margin: 0;
+    font-family: "Segoe UI", sans-serif;
+    background: #f5f7fa;
+    color: #1e293b;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  header {
+    width: 100%;
+    padding: 20px;
+    background: #2563eb;
+    text-align: center;
+    font-size: 24px;
+    font-weight: bold;
+    color: white;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  }
+
+  .container {
+    margin-top: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 420px;
+    align-items: center;
+  }
+
+  /* Top Status Section */
+  .top-section {
+    background: #ffffff;
+    padding: 25px 30px;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    width: 100%;
+    text-align: center;
+  }
+
+  .top-section h3 {
+    margin-bottom: 15px;
+    font-size: 20px;
+    color: #2563eb;
+  }
+
+  .status-item {
+    display: flex;
+    justify-content: space-between;
+    margin: 8px auto;
+    font-size: 16px;
+    max-width: 300px;
+  }
+
+  .alerts {
+    margin-top: 12px;
+    padding: 10px;
+    background: #fef3f2;
+    color: #b91c1c;
+    border-radius: 8px;
+    font-size: 15px;
+    max-width: 300px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* Dashboard Buttons */
+  .dashboard-button {
+    padding: 18px 0;
+    border: 1px solid #d1d5db;
+    border-radius: 12px;
+    font-size: 18px;
+    cursor: pointer;
+    width: 100%;
+    text-align: center;
+    font-weight: bold;
+    text-decoration: none;
+    color: #1e293b;
+    background: #ffffff;
+    transition: 0.2s;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.05);
+    outline: none;
+  }
+
+  .dashboard-button:hover {
+    background: #f0f9ff;
+    transform: translateY(-2px);
+  }
+
+  .logout {
+    border: 1px solid #ef4444;
+    color: #ef4444;
+  }
+
+  .logout:hover {
+    background: #fee2e2;
+    color: #b91c1c;
+  }
+
+  .role-badge {
+    font-size: 14px;
+    margin-top: 8px;
+    color: #475569;
+  }
+</style>
+</head>
+
+<body>
+
+<header>BMS-Lite Dashboard</header>
+
+<div class="container">
+
+  <!-- Chiller & System Status -->
+  <div class="top-section">
+    <h3>Chiller & System Status</h3>
+    <div class="status-item">
+      <span>Chiller Status</span>
+      <span id="chillerStatus">OFF</span>
+    </div>
+    <div class="status-item">
+      <span>Total FCU Running</span>
+      <span id="fcuCount">0</span>
+    </div>
+    <div class="alerts" id="alarms">No faults</div>
+    <div class="role-badge">
+      Logged in as: <b id="userRole">Guest</b>
+    </div>
+  </div>
+
+  <!-- Navigation -->
+  <a href="Chiller.html" class="dashboard-button">Chillers & Pumps</a>
+  <a href="Level-5.html" class="dashboard-button">Level-5</a>
+  <a href="Level-4.html" class="dashboard-button">Level-4</a>
+  <a href="Level-3.html" class="dashboard-button">Level-3</a>
+  <a href="Level-2.html" class="dashboard-button">Level-2</a>
+  <a href="Level-1.html" class="dashboard-button">Level-1</a>
+
+  <!-- Logout -->
+  <button class="dashboard-button logout" onclick="logout()">Logout</button>
+
+</div>
+
+<script>
+  // Login Protection
+  const role = sessionStorage.getItem("role");
+
+  if (!role) {
+    window.location.href = "login.html";
+  }
+
+  document.getElementById("userRole").innerText = role.toUpperCase();
+
+  // Example: later you will update these from Firebase
+  document.getElementById("chillerStatus").innerText = "OFF";
+  document.getElementById("fcuCount").innerText = "0";
+
+  function logout() {
+    sessionStorage.clear();
+    window.location.href = "login.html";
+  }
+</script>
+
+</body>
+</html>
