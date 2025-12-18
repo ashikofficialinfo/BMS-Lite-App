@@ -154,7 +154,7 @@
   const role = sessionStorage.getItem("role");
 
   if (!role) {
-    window.location.href = "login.html";
+    window.location.href = "dashboard.html";
   }
 
   document.getElementById("userRole").innerText = role.toUpperCase();
@@ -165,7 +165,7 @@
 
   function logout() {
     sessionStorage.clear();
-    window.location.href = "login.html";
+    window.location.href = "index.html";
   }
 </script>
 
