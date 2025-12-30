@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BMS-Lite | Login</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="style.css">
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+</head>
+<body>
+
+    <div class="login-box">
+        <h2>BMS-LITE LOGIN</h2>
+        <div class="sub-heading">RAC 21-22 NPI</div>
+
+        <div class="input-group">
+            <input type="email" id="email" placeholder="Admin Email">
+        </div>
+        <div class="input-group">
+            <input type="password" id="password" placeholder="Password">
+        </div>
+        
+        <button class="admin-btn" onclick="adminLogin()">Sign in as Admin</button>
+
+        <div class="divider">OR</div>
+
+        <button class="guest-btn" onclick="guestLogin()">Continue as Guest (Read Only)</button>
+
+        <div class="error" id="errorMsg"></div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

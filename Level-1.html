@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BMS-Lite | Level-1 View</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="level-style.css">
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+</head>
+<body>
+
+<header>BMS-Lite – Level-1 Monitoring</header>
+
+<div class="container">
+    <a class="back-btn" href="dashboard.html">← Dashboard</a>
+
+    <div id="guest-notice">
+        ⚠️ Read-Only Mode: Controls are disabled for Guest accounts.
+    </div>
+
+    <div class="card-grid" id="roomGrid"></div>
+</div>
+
+<footer>© 2025 BMS-Lite | RAC 21-22 NPI</footer>
+
+<script src="floor1-script.js"></script>
+</body>
+</html>

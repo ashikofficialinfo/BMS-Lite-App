@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>BMS-Lite | Help & Support</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --primary-blue: #2563eb;
+    --text-main: #1e293b;
+    --text-muted: #64748b;
+    --bg-color: #f8fafc;
+    --border-color: #e2e8f0;
+  }
+
+  body {
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    background: var(--bg-color);
+    color: var(--text-main);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+  }
+
+  header {
+    width: 100%;
+    padding: 20px 0;
+    background: var(--primary-blue);
+    text-align: center;
+    font-size: 20px;
+    font-weight: 700;
+    color: white;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
+  }
+
+  .container {
+    margin-top: 25px;
+    width: 90%;
+    max-width: 450px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding-bottom: 50px;
+  }
+
+  .card {
+    background: white;
+    padding: 24px;
+    border-radius: 16px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  }
+
+  h3 {
+    margin-top: 0;
+    font-size: 18px;
+    color: var(--primary-blue);
+    border-bottom: 2px solid var(--bg-color);
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+  }
+
+  /* FAQ Styles */
+  .faq-item {
+    margin-bottom: 15px;
+  }
+
+  .faq-question {
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--text-main);
+    margin-bottom: 4px;
+    display: block;
+  }
+
+  .faq-answer {
+    font-size: 13.5px;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+
+  /* Contact Support Styles */
+  .contact-info {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .contact-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    color: var(--text-main);
+    font-size: 14px;
+    font-weight: 500;
+    padding: 10px;
+    background: var(--bg-color);
+    border-radius: 8px;
+    transition: background 0.2s;
+  }
+
+  .contact-link:hover {
+    background: #eff6ff;
+    color: var(--primary-blue);
+  }
+
+  /* Back Button */
+  .back-btn {
+    display: block;
+    width: 100%;
+    padding: 14px;
+    background: white;
+    border: 1.5px solid var(--primary-blue);
+    border-radius: 12px;
+    text-align: center;
+    text-decoration: none;
+    color: var(--primary-blue);
+    font-weight: 600;
+    font-size: 15px;
+    transition: all 0.2s;
+  }
+
+  .back-btn:hover {
+    background: var(--primary-blue);
+    color: white;
+  }
+</style>
+</head>
+
+<body>
+
+<header>Support Center</header>
+
+<div class="container">
+
+  <div class="card">
+    <h3>Common Questions</h3>
+    
+    <div class="faq-item">
+      <span class="faq-question">Why is the Chiller showing "OFF"?</span>
+      <span class="faq-answer">This indicates the main plant is powered down or in standby mode. Check the manual override in the Chiller tab.</span>
+    </div>
+
+    <div class="faq-item">
+      <span class="faq-question">How do I control Floor Levels?</span>
+      <span class="faq-answer">Only <b>Admin</b> users can toggle FCUs. <b>Guest</b> users have "Read Only" access to view temperatures.</span>
+    </div>
+
+    <div class="faq-item">
+      <span class="faq-question">System shows "Alarm"?</span>
+      <span class="faq-answer">Red alerts indicate a sensor failure or high-temperature threshold breach. Notify maintenance immediately.</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Direct Support</h3>
+    <div class="contact-info">
+      <a href="mailto:ashikur.rahman.mep@gmail.com" class="contact-link">
+        ✉️ ashikur.rahman.mep@gmail.com
+      </a>
+      <a href="tel:+8801307898733" class="contact-link">
+        📞 +880 1307898733
+      </a>
+    </div>
+  </div>
+
+  <a href="dashboard.html" class="back-btn">← Back to Dashboard</a>
+
+</div>
+
+</body>
+</html>

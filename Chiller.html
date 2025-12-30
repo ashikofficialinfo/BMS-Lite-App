@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chiller Control Dashboard</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="chiller-style.css">
+
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
+</head>
+<body>
+
+<div class="dashboard">
+    <h1>Chiller Control Dashboard</h1>
+    
+    <div id="permission-warning">⚠️ Read-Only Mode: Controls are disabled for Guest accounts.</div>
+
+    <div class="section">
+        <div>
+            <h2 style="margin:0">Chiller Unit</h2>
+            <small>Main Compressor Control</small>
+        </div>
+        <div class="controls">
+            <button id="btn-chiller" class="btn" onclick="triggerPulse('chiller')">ON / OFF</button>
+            <span id="chiller-status" class="status stop">OFFLINE</span>
+        </div>
+    </div>
+
+    <div class="section">
+        <div>
+            <h2 style="margin:0">Pumps (CWP/CHWP)</h2>
+            <small>Water Circulation System</small>
+        </div>
+        <div class="controls">
+            <button id="btn-pump" class="btn" onclick="triggerPulse('pump')">ON / OFF</button>
+            <span id="pump-status" class="status stop">OFFLINE</span>
+        </div>
+    </div>
+
+    <div class="section tower-section">
+        <div>
+            <h2 style="margin:0">Cooling Tower</h2>
+            <small>Fan & Heat Rejection</small>
+        </div>
+        <div class="controls">
+            <button id="btn-fan" class="btn fan-btn" onclick="triggerPulse('fan')">Fan Auto</button>
+            <span id="fan-status" class="status stop">OFFLINE</span>
+        </div>
+    </div>
+
+    <div class="grid-container">
+        <div class="data-card"><span class="label">CW IN</span><span class="value" id="cw-in">--</span>°C</div>
+        <div class="data-card"><span class="label">CW OUT</span><span class="value" id="cw-out">--</span>°C</div>
+        <div class="data-card"><span class="label">CHW IN</span><span class="value" id="chw-in">--</span>°C</div>
+        <div class="data-card"><span class="label">CHW OUT</span><span class="value" id="chw-out">--</span>°C</div>
+        <div class="data-card"><span class="label">Makeup Tank</span><span class="value" id="makeup-level">--</span></div>
+        <div class="data-card"><span class="label">Flow Status</span><span class="value" id="cw-flow" style="font-size: 0.9rem;">--</span></div>
+    </div>
+
+    <div class="alarm-section">
+        <h3 style="margin:0 0 10px 0">Active Alarms</h3>
+        <ul id="alarm-list" style="margin:0; padding-left:20px;">
+            <li>Monitoring active...</li>
+        </ul>
+    </div>
+
+    <a href="dashboard.html" class="return-btn">← Return to Dashboard</a>
+</div>
+
+<script src="chiller-script.js"></script>
+
+</body>
+</html>s

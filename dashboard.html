@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BMS-Lite | Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="dashboard-style.css">
+    
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+</head>
+
+<body>
+    <header>BMS-Lite Dashboard NPI</header>
+
+    <div class="container">
+        <div class="status-card">
+            <h3>System Overview</h3>
+            
+            <div class="status-row">
+                <span>Chiller Plant</span>
+                <span id="chillerStatus" style="font-weight: 700;">--</span>
+            </div>
+            
+            <div class="status-row">
+                <span>Active FCUs</span>
+                <span id="fcuCount" style="font-weight: 700;">0</span>
+            </div>
+
+            <div class="alarm-banner" id="alarms">SYSTEM STATUS: LOADING...</div>
+
+            <div class="role-text">
+                Logged in as: <span id="userRole" style="color: #2563eb; font-weight: 600;">...</span>
+            </div>
+        </div>
+
+        <a href="Chiller.html" class="nav-btn">Chillers & Pumps</a>
+        <a href="Level-5.html" class="nav-btn">Level 5</a>
+        <a href="Level-4.html" class="nav-btn">Level 4</a>
+        <a href="Level-3.html" class="nav-btn">Level 3</a>
+        <a href="Level-2.html" class="nav-btn">Level 2</a>
+        <a href="Level-1.html" class="nav-btn">Level 1</a>
+
+        <button class="nav-btn logout-btn" onclick="logout()">Logout Session</button>
+        <a href="Help.html" class="nav-btn help-btn">Need Help? Contact Support</a>
+    </div>
+
+    <script src="dashboard-script.js"></script>
+</body>
+</html>
