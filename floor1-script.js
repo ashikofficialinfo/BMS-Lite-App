@@ -1,11 +1,20 @@
 // 1. FIREBASE CONFIGURATION
 const firebaseConfig = {
-    databaseURL: "https://bms-lite-c1453-default-rtdb.asia-southeast1.firebasedatabase.app"
+    apiKey: "AIzaSyCmRQY6Qkursb7kt4p_pizV747JO7EntDM",
+    authDomain: "bms-lite-c1453.firebaseapp.com",
+    projectId: "bms-lite-c1453",
+    databaseURL: "https://bms-lite-c1453-default-rtdb.asia-southeast1.firebasedatabase.app",
+    appId: "1:992533228260:web:89739abdfc5cef63ff9af1"
 };
-firebase.initializeApp(firebaseConfig);
-const database = firebase.database();
 
-// 2. ROOM DATA FOR LEVEL 1 (Ground Floor)
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+}
+
+const database = firebase.database();
+const auth = firebase.auth();
+
+// 2. ROOM DATA FOR LEVEL 1
 const rooms = [
     {id:108, name:"Testing Lab"},
     {id:109, name:"Electrical Lab"},
@@ -18,97 +27,108 @@ const rooms = [
 ];
 
 const grid = document.getElementById('roomGrid');
-const userRole = sessionStorage.getItem("role") || "guest";
+let userRole = "guest";
 
-// 3. GENERATE THE CARDS
-rooms.forEach((room, index) => {
-    const card = document.createElement('div');
-    card.className = 'card';
-    card.innerHTML = `
-        <h3>Room ${room.id} - ${room.name}</h3>
-        <div>Temperature: <span id="temp${index+1}">--</span> °C</div>
-        <div>Humidity: <span id="humidity${index+1}">--</span> %</div>
-        <div>Air Quality: <span class="status safe">Good</span></div>
-        <div>Fire Alert: <span id="fire${index+1}" class="status safe">Safe</span></div>
-        <div>FCU Status: <span id="fcu${index+1}" class="status off">OFF</span></div>
-        <div style="margin-top:12px;">
-            <button class="toggle-on control-btn" onclick="triggerFcuPulse(${room.id}, 'on')">FCU ON</button>
-            <button class="toggle-off control-btn" onclick="triggerFcuPulse(${room.id}, 'off')">FCU OFF</button>
-        </div>
-    `;
-    grid.appendChild(card);
+// 3. WAIT FOR AUTH BEFORE DOING ANYTHING
+firebase.auth().onAuthStateChanged((user) => {
+    if (user) {
+        console.log("Authenticated:", user.uid);
+        userRole = sessionStorage.getItem("role") || "guest";
+        buildCards();
+        applyPermissions();
+        listenToStatus();
+    } else {
+        console.log("Not logged in - redirecting");
+        window.location.href = "index.html";
+    }
 });
 
-// 4. APPLY PERMISSIONS
-if (userRole === "guest") {
-    const notice = document.getElementById("guest-notice");
-    if(notice) notice.style.display = "block";
-    document.querySelectorAll('.control-btn').forEach(btn => btn.disabled = true);
+// 4. BUILD ROOM CARDS
+function buildCards() {
+    grid.innerHTML = "";
+    rooms.forEach((room, index) => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+            <h3>Room ${room.id} - ${room.name}</h3>
+            <div>Temperature: <span id="temp${index+1}">--</span> °C</div>
+            <div>Humidity: <span id="humidity${index+1}">--</span> %</div>
+            <div>Air Quality: <span class="status safe">Good</span></div>
+            <div>Fire Alert: <span id="fire${index+1}" class="status safe">Safe</span></div>
+            <div>FCU Status: <span id="fcu${index+1}" class="status off">OFF</span></div>
+            <div style="margin-top:12px;">
+                <button class="toggle-on control-btn" onclick="triggerFcuPulse(${room.id}, 'on')">FCU ON</button>
+                <button class="toggle-off control-btn" onclick="triggerFcuPulse(${room.id}, 'off')">FCU OFF</button>
+            </div>
+        `;
+        grid.appendChild(card);
+    });
 }
 
-// 5. PULSE LOGIC (FIREBASE WRITING DISABLED)
+// 5. APPLY PERMISSIONS
+function applyPermissions() {
+    if (userRole === "guest") {
+        const notice = document.getElementById("guest-notice");
+        if (notice) notice.style.display = "block";
+        document.querySelectorAll('.control-btn').forEach(btn => btn.disabled = true);
+    }
+}
+
+// 6. FCU PULSE CONTROL - FIXED AND ENABLED
 function triggerFcuPulse(roomId, action) {
     if (userRole === "guest") {
         alert("Access Denied: Guest cannot control hardware.");
         return;
     }
 
-    const path = `controls/room_${roomId}_${action}_pulse`;
-    
-    // --- LOGGING ONLY: DATA TRANSMISSION DISABLED ---
-    console.log(`[LEVEL 1 SIMULATION] Room: ${roomId} | Action: ${action.toUpperCase()}`);
-    console.log(`[LEVEL 1 SIMULATION] Firebase Path blocked: ${path}`);
+    const path = `controls/room_${roomId}_${action}`;
+    console.log("Sending command to:", path);
 
-    /* // Commented out to prevent actual hardware switching
-    database.ref(path).set(true);
-    setTimeout(() => database.ref(path).set(false), 200);
-    */
+    database.ref(path).set(true)
+        .then(() => {
+            console.log("Command sent successfully:", path);
+            // Auto reset after 2 seconds
+            setTimeout(() => {
+                database.ref(path).set(false);
+            }, 2000);
+        })
+        .catch(err => {
+            console.error("Firebase write failed:", err.message);
+            alert("Command failed: " + err.message);
+        });
 }
 
-// 6. REAL-TIME LISTENERS (READ-ONLY MONITORING)
+// 7. REAL-TIME LISTENERS
 function listenToStatus() {
     rooms.forEach((room, index) => {
-        // Monitor FCU State (Incoming from ESP32)
+        // FCU Status
         database.ref(`status/room_${room.id}_running`).on('value', snap => {
             const el = document.getElementById(`fcu${index+1}`);
             if (el) {
-                if (snap.val() === true) {
-                    el.textContent = "ON";
-                    el.className = "status on";
-                } else {
-                    el.textContent = "OFF";
-                    el.className = "status off";
-                }
+                el.textContent = snap.val() === true ? "ON" : "OFF";
+                el.className = snap.val() === true ? "status on" : "status off";
             }
         });
 
-        // Monitor Fire Sensors (Incoming from ESP32)
+        // Fire Sensor
         database.ref(`sensors/room_${room.id}/fire`).on('value', snap => {
-            const fireEl = document.getElementById(`fire${index+1}`);
-            if (fireEl) {
-                if (snap.val() === true) {
-                    fireEl.textContent = "FIRE!";
-                    fireEl.className = "status off"; // Red warning
-                } else {
-                    fireEl.textContent = "Safe";
-                    fireEl.className = "status safe";
-                }
+            const el = document.getElementById(`fire${index+1}`);
+            if (el) {
+                el.textContent = snap.val() === true ? "FIRE!" : "Safe";
+                el.className = snap.val() === true ? "status off" : "status safe";
             }
         });
 
-        // Monitor Temperature
+        // Temperature
         database.ref(`sensors/room_${room.id}/temp`).on('value', snap => {
-            const tempEl = document.getElementById(`temp${index+1}`);
-            if (tempEl && snap.val() !== null) tempEl.innerText = snap.val();
+            const el = document.getElementById(`temp${index+1}`);
+            if (el && snap.val() !== null) el.innerText = snap.val();
         });
 
-        // Monitor Humidity
+        // Humidity
         database.ref(`sensors/room_${room.id}/humidity`).on('value', snap => {
-            const humEl = document.getElementById(`humidity${index+1}`);
-            if (humEl && snap.val() !== null) humEl.innerText = snap.val();
+            const el = document.getElementById(`humidity${index+1}`);
+            if (el && snap.val() !== null) el.innerText = snap.val();
         });
     });
 }
-
-// Start watching for updates immediately
-listenToStatus();
