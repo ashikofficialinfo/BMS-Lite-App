@@ -1,19 +1,37 @@
 // 1. FIREBASE INITIALIZATION
 const firebaseConfig = {
-    databaseURL: "https://bms-lite-c1453-default-rtdb.asia-southeast1.firebasedatabase.app"
+    apiKey: "AIzaSyCmRQY6Qkursb7kt4p_pizV747JO7EntDM",
+    authDomain: "bms-lite-c1453.firebaseapp.com",
+    projectId: "bms-lite-c1453",
+    databaseURL: "https://bms-lite-c1453-default-rtdb.asia-southeast1.firebasedatabase.app",
+    appId: "1:992533228260:web:89739abdfc5cef63ff9af1"
 };
+
 if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
 }
-const database = firebase.database();
 
-// 2. AUTH & ROLE CHECK
-const role = sessionStorage.getItem("role") || "guest";
-document.getElementById("userRole").innerText = role.toUpperCase();
+const database = firebase.database();
+const auth = firebase.auth();
+
+// 2. AUTH STATE CHECK - wait for Firebase auth before doing anything
+firebase.auth().onAuthStateChanged((user) => {
+    if (user) {
+        // User is logged in - safe to start
+        console.log("Logged in as:", user.email || "anonymous", "UID:", user.uid);
+        const role = sessionStorage.getItem("role") || "guest";
+        document.getElementById("userRole").innerText = role.toUpperCase();
+        startMonitoring(role);
+    } else {
+        // Not logged in - redirect to login page
+        console.log("Not authenticated - redirecting to login");
+        window.location.href = "index.html";
+    }
+});
 
 // 3. MAIN MONITORING FUNCTION
-function startMonitoring() {
-    // --- Chiller Status Monitor ---
+function startMonitoring(role) {
+    // --- Chiller Status ---
     database.ref('status/chiller_status').on('value', snap => {
         const el = document.getElementById("chillerStatus");
         const status = snap.val() ? "ON" : "OFF";
@@ -21,20 +39,17 @@ function startMonitoring() {
         el.style.color = snap.val() ? "#16a34a" : "#dc2626";
     });
 
-    // --- Pumps Running Monitor (for FCU count) ---
+    // --- Pumps Running ---
     database.ref('status/pumps_running').on('value', snap => {
         const el = document.getElementById("fcuCount");
-        const count = snap.val() ? "1" : "0";
-        el.innerText = count;
+        el.innerText = snap.val() ? "1" : "0";
         el.style.color = snap.val() ? "#16a34a" : "#dc2626";
     });
 
-    // --- System Fault Monitor ---
+    // --- System Fault ---
     database.ref('status/system_fault').on('value', snap => {
         const banner = document.getElementById("alarms");
-        const status = snap.val();
-        
-        if (status === "OK") {
+        if (snap.val() === "OK") {
             banner.innerText = "SYSTEM STATUS: NORMAL";
             banner.style.background = "#f0f4f8";
             banner.style.color = "#64748b";
@@ -44,13 +59,32 @@ function startMonitoring() {
             banner.style.color = "white";
         }
     });
+
+    // --- Control Buttons (admin only) ---
+    // Hide control buttons for guests
+    if (role !== "admin") {
+        const controls = document.querySelectorAll(".control-btn");
+        controls.forEach(btn => btn.disabled = true);
+        console.log("Guest mode - controls disabled");
+    }
 }
 
-// Logout Function
+// 4. RELAY CONTROL FUNCTIONS (admin only)
+function sendCommand(path) {
+    const role = sessionStorage.getItem("role");
+    if (role !== "admin") {
+        alert("Admin access required!");
+        return;
+    }
+    database.ref(path).set(true)
+        .then(() => console.log("Command sent:", path))
+        .catch(err => console.error("Write failed:", err.message));
+}
+
+// 5. LOGOUT
 function logout() {
-    sessionStorage.clear();
-    window.location.href = "index.html";
+    auth.signOut().then(() => {
+        sessionStorage.clear();
+        window.location.href = "index.html";
+    });
 }
-
-// Run Monitoring
-startMonitoring();
